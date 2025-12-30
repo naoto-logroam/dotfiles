@@ -5,6 +5,8 @@ macOS用の個人設定ファイル集
 ## 含まれるもの
 
 - `.zshrc` - zshの設定
+- `.vimrc` - Vimの設定
+- `.config/nvim/` - Neovim設定（LazyVim）
 - `.config/wezterm/wezterm.lua` - WezTermターミナルの設定
 - `.config/karabiner/karabiner.json` - Karabiner-Elementsの設定
 - `.config/starship.toml` - Starshipプロンプトの設定
@@ -20,6 +22,11 @@ cd ~/dotfiles
 ```
 
 ## 設定内容
+
+### Vim / Neovim
+
+- タブ幅: 4スペース
+- Neovim: LazyVimベース
 
 ### zsh (.zshrc)
 
