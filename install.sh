@@ -23,8 +23,7 @@ ln -snf "$DOTFILES_DIR/.config/wezterm" "$HOME/.config"
 echo "  Linked wezterm"
 
 # karabiner
-mkdir -p "$HOME/.config/karabiner"
-ln -sf "$DOTFILES_DIR/.config/karabiner/karabiner.json" "$HOME/.config/karabiner"
+ln -sf "$DOTFILES_DIR/.config/karabiner" "$HOME/.config"
 echo "  Linked karabiner.json"
 
 # starship
