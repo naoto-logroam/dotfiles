@@ -1,0 +1,5 @@
+brew "neovim"
+brew "node"
+brew "starship"
+brew "tmux"
+brew "zsh-autosuggestions"
