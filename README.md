@@ -7,6 +7,7 @@ macOS用の個人設定ファイル集
 - `.zshrc` - zshの設定
 - `.config/wezterm/wezterm.lua` - WezTermターミナルの設定
 - `.config/karabiner/karabiner.json` - Karabiner-Elementsの設定
+- `.config/starship.toml` - Starshipプロンプトの設定
 - `Brewfile` - Homebrewパッケージリスト
 - `install.sh` - セットアップスクリプト
 
@@ -47,6 +48,16 @@ cd ~/dotfiles
 | `Ctrl+q` `z` | ペインズーム |
 | `Ctrl+q` `[` | コピーモード |
 | `Ctrl+q` `,` | タブ名変更 |
+
+### Starship
+
+カスタムプロンプト設定:
+
+- 2行表示（パス + git情報 / 入力行）
+- 右側にコマンド実行時間・ユーザー名・時刻を表示
+- ディレクトリアイコン（Documents, Downloads等）
+- Git ブランチ・ステータス表示
+- AWS/GCloud表示は無効化
 
 ### Karabiner-Elements
 

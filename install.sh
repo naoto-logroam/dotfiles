@@ -28,4 +28,8 @@ mkdir -p "$HOME/.config/karabiner"
 ln -sf "$DOTFILES_DIR/.config/karabiner/karabiner.json" "$HOME/.config/karabiner/karabiner.json"
 echo "  Linked karabiner.json"
 
+# starship
+ln -sf "$DOTFILES_DIR/.config/starship.toml" "$HOME/.config/starship.toml"
+echo "  Linked starship.toml"
+
 echo "==> Done! Restart your terminal to apply changes."
