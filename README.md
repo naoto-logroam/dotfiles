@@ -6,6 +6,7 @@ macOS用の個人設定ファイル集
 
 - `.zshrc` - zshの設定
 - `.config/wezterm/wezterm.lua` - WezTermターミナルの設定
+- `.config/karabiner/karabiner.json` - Karabiner-Elementsの設定
 - `Brewfile` - Homebrewパッケージリスト
 - `install.sh` - セットアップスクリプト
 
@@ -46,6 +47,17 @@ cd ~/dotfiles
 | `Ctrl+q` `z` | ペインズーム |
 | `Ctrl+q` `[` | コピーモード |
 | `Ctrl+q` `,` | タブ名変更 |
+
+### Karabiner-Elements
+
+キーリマップ設定:
+
+- Caps Lock → Right Command（グローバル）
+- Right Command + `h/j/k/l` → 矢印キー（グローバル）
+- WezTerm内:
+  - Caps Lock → Left Control
+  - Ctrl + `h/j/k/l` → 矢印キー
+  - Ctrl + Space → Cmd + Space（IME切り替え）
 
 ### Brewfile
 
