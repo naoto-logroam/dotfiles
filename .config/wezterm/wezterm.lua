@@ -50,7 +50,11 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, cfg, hover, max_width)
 	end
 
 	--local edge_foreground = background
-	local title = "   " .. wezterm.truncate_right(tab.active_pane.title, max_width - 1) .. "   "
+	local tab_title = tab.tab_title
+	if not tab_title or #tab_title == 0 then
+		tab_title = tab.active_pane.title
+	end
+	local title = "   " .. wezterm.truncate_right(tab_title, max_width - 1) .. "   "
 
 	return {
 		{ Background = { Color = background } },
@@ -74,12 +78,8 @@ config.keys = {
 	{ key = "\\", mods = "LEADER", action = wezterm.action.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
 	{ key = "-", mods = "LEADER", action = wezterm.action.SplitVertical({ domain = "CurrentPaneDomain" }) },
 
-	-- ペイン移動 (vim風)
-	{ key = "h", mods = "LEADER", action = wezterm.action.ActivatePaneDirection("Left") },
-	{ key = "k", mods = "LEADER", action = wezterm.action.ActivatePaneDirection("Up") },
-
 	-- タブ切り替え
-	{ key = "j", mods = "LEADER", action = wezterm.action.ActivateTabRelative(-1) },
+	{ key = "h", mods = "LEADER", action = wezterm.action.ActivateTabRelative(-1) },
 	{ key = "l", mods = "LEADER", action = wezterm.action.ActivateTabRelative(1) },
 
 	-- ペインリサイズ
@@ -114,7 +114,7 @@ config.keys = {
 		mods = "LEADER",
 		action = wezterm.action.PromptInputLine({
 			description = "Tab name:",
-			action = wezterm.action_callback(function(window, pane, line)
+			action = wezterm.action_callback(function(window, panes, line)
 				if line then
 					window:active_tab():set_title(line)
 				end
