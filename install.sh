@@ -6,10 +6,10 @@ DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 echo "==> Installing Homebrew packages..."
 if command -v brew &>/dev/null; then
-    brew bundle --file="$DOTFILES_DIR/Brewfile"
+  brew bundle --file="$DOTFILES_DIR/Brewfile"
 else
-    echo "Homebrew not found. Install from https://brew.sh first."
-    exit 1
+  echo "Homebrew not found. Install from https://brew.sh first."
+  exit 1
 fi
 
 echo "==> Creating symlinks..."
