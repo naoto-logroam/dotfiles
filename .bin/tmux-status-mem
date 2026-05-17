@@ -1,0 +1,19 @@
+#!/bin/sh
+
+page_size=$(vm_stat | awk '/page size of/ { print $8 }')
+free_pages=$(vm_stat | awk '/Pages free/ { gsub("\\.", "", $3); print $3 }')
+inactive_pages=$(vm_stat | awk '/Pages inactive/ { gsub("\\.", "", $3); print $3 }')
+speculative_pages=$(vm_stat | awk '/Pages speculative/ { gsub("\\.", "", $3); print $3 }')
+total_bytes=$(sysctl -n hw.memsize 2>/dev/null)
+
+if [ -z "$page_size" ] || [ -z "$free_pages" ] || [ -z "$inactive_pages" ] || [ -z "$speculative_pages" ] || [ -z "$total_bytes" ]; then
+  printf "n/a"
+  exit 0
+fi
+
+available_bytes=$(( (free_pages + inactive_pages + speculative_pages) * page_size ))
+used_bytes=$(( total_bytes - available_bytes ))
+
+awk -v used="$used_bytes" -v total="$total_bytes" 'BEGIN {
+  printf "%.1f/%.1fGB", used / 1024 / 1024 / 1024, total / 1024 / 1024 / 1024
+}'

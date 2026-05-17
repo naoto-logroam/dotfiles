@@ -1,0 +1,285 @@
+format = """
+$os\
+$username\
+$hostname\
+$directory\
+[ ](fg:#88C0D0 bg:#1d2230)\
+$git_branch\
+$git_commit\
+$git_state\
+$git_status\
+[ ](fg:#1d2230)\
+$package\
+$nodejs\
+$bun\
+$deno\
+$python\
+$ruby\
+$golang\
+$rust\
+$java\
+$kotlin\
+$swift\
+$lua\
+$php\
+$docker_context\
+$kubernetes\
+$helm\
+$terraform\
+$direnv\
+$mise\
+$nix_shell\
+\n$character
+"""
+
+right_format = """
+$status\
+$jobs\
+$sudo\
+$cmd_duration\
+$shell\
+$shlvl\
+$memory_usage\
+$battery\
+$time
+"""
+
+add_newline = true
+command_timeout = 1000
+
+[os]
+disabled = false
+style = 'fg:#2E3440 bg:#88C0D0 bold'
+format = '[ $symbol]($style)'
+
+[os.symbols]
+Macos = ' '
+
+[username]
+style_user = 'fg:#2E3440 bg:#88C0D0 bold'
+style_root = 'fg:#2E3440 bg:#f7768e bold'
+format = '[$user ]($style)'
+disabled = false
+show_always = true
+
+[hostname]
+ssh_only = false
+style = 'fg:#2E3440 bg:#88C0D0 bold'
+format = '[@$hostname ]($style)'
+
+[directory]
+style = 'fg:#2E3440 bg:#88C0D0 bold'
+truncation_length = 6
+truncate_to_repo = false
+truncation_symbol = '…/'
+read_only = ' 󰌾 '
+read_only_style = 'fg:#f7768e bg:#88C0D0'
+format = '[ $path]($style)[$read_only]($read_only_style)'
+
+[directory.substitutions]
+'Documents' = '󰈙 '
+'Downloads' = ' '
+'Music' = ' '
+'Pictures' = ' '
+'Developer' = '󰲋 '
+'dotfiles' = ' dotfiles'
+
+[git_branch]
+symbol = ''
+style = 'bg:#1d2230'
+format = '[[ $symbol $branch ](fg:#769ff0 bg:#1d2230)]($style)'
+
+[git_commit]
+commit_hash_length = 7
+tag_disabled = false
+style = 'fg:#bb9af7 bg:#1d2230'
+format = '[\($hash$tag\) ]($style)'
+
+[git_state]
+style = 'fg:#e0af68 bg:#1d2230'
+format = '[\($state( $progress_current/$progress_total)\) ]($style)'
+
+[git_status]
+style = 'bg:#1d2230'
+format = '[[($all_status$ahead_behind )](fg:#769ff0 bg:#1d2230)]($style)'
+conflicted = '=${count} '
+ahead = '⇡${count} '
+behind = '⇣${count} '
+diverged = '⇕⇡${ahead_count}⇣${behind_count} '
+up_to_date = ''
+untracked = '?${count} '
+stashed = '$${count} '
+modified = '!${count} '
+staged = '+${count} '
+renamed = '»${count} '
+deleted = '✘${count} '
+
+[package]
+symbol = '󰏗 '
+style = 'fg:#a0a9cb'
+format = '[$symbol$version ]($style)'
+
+[nodejs]
+symbol = ' '
+style = 'fg:#9ece6a'
+format = '[$symbol$version ]($style)'
+
+[bun]
+symbol = ' '
+style = 'fg:#e0af68'
+format = '[$symbol$version ]($style)'
+
+[deno]
+symbol = 'deno '
+style = 'fg:#7dcfff'
+format = '[$symbol$version ]($style)'
+
+[python]
+symbol = ' '
+style = 'fg:#e0af68'
+format = '[${symbol}${pyenv_prefix}${version}(\($virtualenv\)) ]($style)'
+
+[ruby]
+symbol = ' '
+style = 'fg:#f7768e'
+format = '[$symbol$version ]($style)'
+
+[golang]
+symbol = ' '
+style = 'fg:#7dcfff'
+format = '[$symbol$version ]($style)'
+
+[rust]
+symbol = ' '
+style = 'fg:#f7768e'
+format = '[$symbol$version ]($style)'
+
+[java]
+symbol = ' '
+style = 'fg:#e0af68'
+format = '[$symbol$version ]($style)'
+
+[kotlin]
+symbol = ' '
+style = 'fg:#bb9af7'
+format = '[$symbol$version ]($style)'
+
+[swift]
+symbol = ' '
+style = 'fg:#ff9e64'
+format = '[$symbol$version ]($style)'
+
+[lua]
+symbol = ' '
+style = 'fg:#7aa2f7'
+format = '[$symbol$version ]($style)'
+
+[php]
+symbol = ' '
+style = 'fg:#bb9af7'
+format = '[$symbol$version ]($style)'
+
+[docker_context]
+symbol = ' '
+style = 'fg:#7dcfff'
+format = '[$symbol$context ]($style)'
+only_with_files = true
+
+[kubernetes]
+disabled = false
+symbol = '󱃾 '
+style = 'fg:#7aa2f7'
+format = '[$symbol$context/$namespace ]($style)'
+
+[helm]
+symbol = '⎈ '
+style = 'fg:#7aa2f7'
+format = '[$symbol$version ]($style)'
+
+[terraform]
+symbol = '󱁢 '
+style = 'fg:#bb9af7'
+format = '[$symbol$workspace ]($style)'
+
+[direnv]
+disabled = false
+symbol = 'direnv '
+style = 'fg:#9ece6a'
+format = '[$symbol$loaded/$allowed ]($style)'
+
+[mise]
+disabled = false
+symbol = 'mise '
+style = 'fg:#a0a9cb'
+format = '[$symbol$health ]($style)'
+
+[nix_shell]
+symbol = ' '
+style = 'fg:#7dcfff'
+format = '[$symbol$state ]($style)'
+
+[status]
+disabled = false
+symbol = '✘ '
+style = 'fg:#f7768e'
+format = '[$symbol$status ]($style)'
+
+[jobs]
+symbol = '+'
+style = 'fg:#e0af68'
+format = '[$symbol$number ]($style)'
+
+[sudo]
+disabled = false
+symbol = 'sudo '
+style = 'fg:#f7768e'
+format = '[$symbol]($style)'
+
+[cmd_duration]
+min_time = 1
+style = 'fg:#e0af68'
+format = '[$duration ]($style)'
+
+[shell]
+disabled = false
+style = 'fg:#a0a9cb'
+format = '[$indicator ]($style)'
+
+[shlvl]
+disabled = false
+threshold = 2
+symbol = '↕ '
+style = 'fg:#bb9af7'
+format = '[$symbol$shlvl ]($style)'
+
+[memory_usage]
+disabled = false
+threshold = 70
+symbol = '󰍛 '
+style = 'fg:#ff9e64'
+format = '[$symbol${ram_pct} ]($style)'
+
+[[battery.display]]
+threshold = 30
+style = 'fg:#f7768e'
+
+[[battery.display]]
+threshold = 60
+style = 'fg:#e0af68'
+
+[time]
+disabled = false
+time_format = '%m/%d %R'
+style = 'fg:#a0a9cb'
+format = '[$time]($style)'
+
+[character]
+success_symbol = '[❯](bold green)'
+error_symbol = '[❯](bold red)'
+vimcmd_symbol = '[V](bold green) '
+
+[aws]
+disabled = true
+
+[gcloud]
+disabled = true

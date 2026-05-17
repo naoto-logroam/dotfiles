@@ -1,0 +1,52 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100/
+.Trashes/
+
+# Editor and tool caches
+.cache/
+.zcompdump*
+.zsh_history
+.viminfo
+.lesshst
+*.swp
+*.swo
+*~
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Local-only dotfiles
+.env
+.env.*
+!.env.example
+*.local
+*.local.*
+!*.local.example
+Brewfile.local
+
+# Credentials and host-specific state
+.ssh/
+.gnupg/
+.aws/
+.config/gcloud/
+.config/gh/
+.config/github-copilot/
+.config/karabiner/automatic_backups/
+.config/karabiner/backups/
+
+# Dependency and build artifacts
+node_modules/
+dist/
+build/
+coverage/
+.turbo/
+.next/

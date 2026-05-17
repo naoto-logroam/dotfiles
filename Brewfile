@@ -1,0 +1,12 @@
+tap "BRO3886/tap"
+
+brew "bat"
+brew "gcalcli"
+brew "gh"
+brew "neovim"
+brew "node"
+brew "starship"
+brew "tmux"
+brew "BRO3886/tap/gtasks"
+brew "tree"
+brew "zsh-autosuggestions"

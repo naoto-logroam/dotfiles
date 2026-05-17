@@ -1,0 +1,6 @@
+# Copy this file to Brewfile.local for machine-specific packages.
+# Brewfile.local is intentionally ignored by git.
+
+# brew "example-cli"
+# cask "example-app"
+

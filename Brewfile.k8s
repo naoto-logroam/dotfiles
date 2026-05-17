@@ -1,0 +1,5 @@
+brew "helm"
+brew "k9s"
+brew "kind"
+brew "kubernetes-cli"
+brew "kubectx"

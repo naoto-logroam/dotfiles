@@ -1,0 +1,136 @@
+#!/bin/sh
+
+set -u
+
+cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/tmux"
+cache_file="$cache_dir/google-status"
+lock_dir="$cache_dir/google-status.lock"
+ttl_seconds="${TMUX_GOOGLE_STATUS_TTL:-300}"
+
+shorten() {
+  max="$1"
+  awk -v max="$max" '{
+    gsub(/[[:space:]]+/, " ")
+    gsub(/^ | $/, "")
+    if (length($0) > max) {
+      print substr($0, 1, max - 1) "~"
+    } else {
+      print
+    }
+  }'
+}
+
+calendar_status() {
+  if ! command -v gcalcli >/dev/null 2>&1; then
+    printf "Cal: setup"
+    return
+  fi
+
+  event=$(
+    gcalcli --nocolor agenda today tomorrow 2>/dev/null |
+      awk '
+        /^[[:space:]]*$/ { next }
+        /^[[:alpha:]]{3}[[:space:]][[:alpha:]]{3}[[:space:]][0-9]/ { next }
+        {
+          line = $0
+          gsub(/^[[:space:]]+|[[:space:]]+$/, "", line)
+          if (line == "") next
+          if (line ~ /^No Events Found/) next
+          print line
+          exit
+        }
+      ' |
+      shorten 38
+  )
+
+  if [ -n "$event" ]; then
+    printf "Cal: %s" "$event"
+  else
+    printf "Cal: none"
+  fi
+}
+
+todo_status() {
+  if ! command -v gtasks >/dev/null 2>&1; then
+    printf "Todo: setup"
+    return
+  fi
+
+  json=$(gtasks tasks view --format json --sort due --max 5 </dev/null 2>/dev/null) || {
+    printf "Todo: login"
+    return
+  }
+
+  summary=$(
+    printf "%s" "$json" |
+      /usr/bin/ruby -rjson -e '
+        begin
+          raw = STDIN.read
+          data = JSON.parse(raw)
+          tasks =
+            if data.is_a?(Array)
+              data
+            elsif data.is_a?(Hash)
+              data["tasks"] || data["items"] || data["data"] || []
+            else
+              []
+            end
+
+          pending = tasks.reject do |task|
+            status = task["status"].to_s.downcase
+            completed = task["completed"]
+            status.include?("completed") || completed
+          end
+
+          if pending.empty?
+            puts "none"
+          else
+            title = pending.first["title"].to_s.gsub(/\s+/, " ").strip
+            title = "(untitled)" if title.empty?
+            title = title[0, 35] + "~" if title.length > 36
+            rest = pending.length - 1
+            puts rest.positive? ? "#{pending.length}: #{title}" : title
+          end
+        rescue
+          puts "login"
+        end
+      '
+  )
+
+  printf "Todo: %s" "$summary"
+}
+
+build_status() {
+  cal=$(calendar_status)
+  todo=$(todo_status)
+  printf "%s | %s\n" "$cal" "$todo"
+}
+
+refresh_cache() {
+  mkdir -p "$cache_dir" 2>/dev/null || return
+
+  (
+    if mkdir "$lock_dir" 2>/dev/null; then
+      trap 'rmdir "$lock_dir" 2>/dev/null' EXIT INT TERM
+      tmp_file="$cache_file.$$"
+      build_status >"$tmp_file"
+      mv "$tmp_file" "$cache_file"
+    fi
+  ) >/dev/null 2>&1 &
+}
+
+now=$(date +%s)
+mtime=0
+if [ -f "$cache_file" ]; then
+  mtime=$(stat -f %m "$cache_file" 2>/dev/null || printf "0")
+fi
+
+if [ ! -f "$cache_file" ] || [ $((now - mtime)) -gt "$ttl_seconds" ]; then
+  refresh_cache
+fi
+
+if [ -s "$cache_file" ]; then
+  head -n 1 "$cache_file"
+else
+  printf "Google: loading"
+fi
