@@ -1,0 +1,96 @@
+# Starship prompt configuration
+
+add_newline = false
+command_timeout = 1200
+
+format = "$directory$git_branch$git_status$git_state$all$cmd_duration$status$line_break$username$hostname$character"
+right_format = "$jobs$time$battery"
+
+[directory]
+truncation_length = 3
+truncate_to_repo = false
+home_symbol = "~"
+read_only = " ro"
+style = "bold green"
+format = "[$path]($style)[$read_only]($read_only_style) "
+read_only_style = "red"
+
+[directory.substitutions]
+"~/dotfiles" = "dotfiles"
+
+[git_branch]
+symbol = "git:"
+style = "cyan"
+format = "[$symbol$branch]($style) "
+
+[git_status]
+style = "yellow"
+format = "[$all_status$ahead_behind]($style) "
+
+[git_state]
+style = "yellow"
+format = "[$state( $progress_current/$progress_total)]($style) "
+
+[cmd_duration]
+min_time = 1000
+style = "bright-black"
+format = "[$duration]($style) "
+
+[status]
+disabled = false
+style = "red"
+format = "[exit:$status]($style) "
+
+[username]
+disabled = false
+show_always = true
+style_user = "blue"
+style_root = "red bold"
+format = "[$user]($style)"
+
+[hostname]
+ssh_only = true
+style = "purple"
+format = "[@$hostname]($style) "
+
+[character]
+success_symbol = "[❯](green)"
+error_symbol = "[❯](red)"
+vimcmd_symbol = "[❮](cyan)"
+
+[jobs]
+style = "cyan"
+symbol = "jobs:"
+number_threshold = 1
+format = "[$symbol$number ]($style)"
+
+[time]
+disabled = false
+time_format = "%H:%M"
+style = "bright-black"
+format = "[$time ]($style)"
+
+[battery]
+disabled = false
+format = "[$symbol$percentage ]($style)"
+
+[[battery.display]]
+threshold = 20
+style = "red bold"
+
+[[battery.display]]
+threshold = 50
+style = "yellow"
+
+[direnv]
+disabled = false
+format = "[$symbol$loaded/$allowed]($style) "
+detect_files = [".envrc"]
+allowed_msg = "ok"
+not_allowed_msg = "wait"
+denied_msg = "deny"
+loaded_msg = "env"
+unloaded_msg = "off"
+
+[gcloud]
+disabled = true
