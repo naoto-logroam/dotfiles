@@ -1,0 +1,11 @@
+# title	command
+status short	git status --short
+show recent commits	git log --oneline --decorate --graph -20
+show changed files	git diff --name-only
+show staged diff	git diff --cached
+stage patch	git add -p
+restore patch	git restore -p <path>
+switch branch	git switch <branch>
+create branch	git switch -c <branch>
+fetch prune	git fetch --prune
+delete merged branches	git branch --merged | grep -v '^\*' | xargs -r git branch -d

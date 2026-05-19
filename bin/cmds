@@ -1,0 +1,50 @@
+#!/usr/bin/env sh
+set -eu
+
+cheat_dir="${CMD_CHEATS_DIR:-$HOME/dotfiles/cheats}"
+
+if [ ! -d "$cheat_dir" ]; then
+  printf 'cmds: cheat directory not found: %s\n' "$cheat_dir" >&2
+  exit 1
+fi
+
+list_commands() {
+  find "$cheat_dir" -type f -name '*.tsv' -print \
+    | sort \
+    | while IFS= read -r file; do
+        category=$(basename "$file" .tsv)
+        awk -F '\t' -v category="$category" '
+          NF >= 2 && $1 !~ /^#/ {
+            printf "%s\t%s\t%s\n", category, $1, $2
+          }
+        ' "$file"
+      done
+}
+
+if [ "$#" -gt 0 ]; then
+  pattern="$*"
+  if command -v rg >/dev/null 2>&1; then
+    list_commands | rg -i -- "$pattern"
+  else
+    list_commands | grep -i -- "$pattern"
+  fi
+  exit
+fi
+
+if ! command -v fzf >/dev/null 2>&1; then
+  list_commands
+  exit
+fi
+
+selected=$(
+  list_commands \
+    | fzf \
+        --prompt='cmds> ' \
+        --delimiter='\t' \
+        --with-nth='1,2' \
+        --preview='printf "%s\n\n%s\n" {2} {3}' \
+        --preview-window='down,3,wrap'
+)
+
+[ -n "$selected" ] || exit 0
+printf '%s\n' "$selected" | awk -F '\t' '{ print $3 }'
