@@ -4,6 +4,13 @@ elif [[ -x /usr/local/bin/brew ]]; then
   eval "$(/usr/local/bin/brew shellenv)"
 fi
 
+if [[ -d "$HOME/.bin" ]]; then
+  export PATH="$HOME/.bin:$PATH"
+fi
+
+# Ctrl-q is the tmux prefix; disable terminal flow control so it reaches tmux.
+stty -ixon 2>/dev/null
+
 # Tab補完を有効化
 autoload -Uz compinit && compinit
 zstyle ':completion:*' menu select                    # メニュー表示
@@ -31,4 +38,8 @@ if command -v kubectl >/dev/null 2>&1; then
   source <(kubectl completion zsh)
   alias k=kubectl
   compdef k=kubectl
+fi
+
+if [[ -r "$HOME/.zshrc.local" ]]; then
+  source "$HOME/.zshrc.local"
 fi

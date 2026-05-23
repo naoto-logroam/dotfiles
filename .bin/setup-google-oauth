@@ -1,0 +1,62 @@
+#!/bin/sh
+
+set -eu
+
+local_zshrc="$HOME/.zshrc.local"
+gcalcli_config_dir="${GCALCLI_CONFIG:-$HOME/Library/Application Support/gcalcli}"
+gcalcli_config_file="$gcalcli_config_dir/config.toml"
+gtasks_config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/gtasks"
+gtasks_config_file="$gtasks_config_dir/config.yml"
+
+if [ -r "$local_zshrc" ]; then
+  # shellcheck disable=SC1090
+  . "$local_zshrc"
+fi
+
+if [ -z "${GCALCLI_CLIENT_ID:-}" ]; then
+  printf "GCALCLI_CLIENT_ID is not set. Add it to %s first.\n" "$local_zshrc" >&2
+  exit 1
+fi
+
+if [ -z "${GCALCLI_CLIENT_SECRET:-}" ]; then
+  printf "GCALCLI_CLIENT_SECRET is not set. Add it to %s first.\n" "$local_zshrc" >&2
+  exit 1
+fi
+
+if [ -z "${GTASKS_CLIENT_ID:-}" ]; then
+  GTASKS_CLIENT_ID="$GCALCLI_CLIENT_ID"
+  export GTASKS_CLIENT_ID
+fi
+
+if [ -z "${GTASKS_CLIENT_SECRET:-}" ]; then
+  GTASKS_CLIENT_SECRET="$GCALCLI_CLIENT_SECRET"
+  export GTASKS_CLIENT_SECRET
+fi
+
+mkdir -p "$gcalcli_config_dir"
+mkdir -p "$gtasks_config_dir"
+umask 077
+{
+  printf "[auth]\n"
+  printf "client-id = \"%s\"\n" "$GCALCLI_CLIENT_ID"
+} >"$gcalcli_config_file"
+
+{
+  printf "credentials:\n"
+  printf "  client_id: %s\n" "$GTASKS_CLIENT_ID"
+  printf "  client_secret: %s\n" "$GTASKS_CLIENT_SECRET"
+} >"$gtasks_config_file"
+
+printf "==> Starting gcalcli authentication...\n"
+gcalcli --client-id "$GCALCLI_CLIENT_ID" --client-secret "$GCALCLI_CLIENT_SECRET" init
+
+printf "==> Starting gtasks authentication...\n"
+gtasks login
+
+printf "==> Verifying Google Calendar access...\n"
+gcalcli --nocolor agenda today tomorrow >/dev/null
+
+printf "==> Verifying Google Tasks access...\n"
+gtasks tasks view --max 1 >/dev/null
+
+printf "==> Google Calendar / Tasks integration is ready.\n"

@@ -1,0 +1,167 @@
+#!/bin/sh
+
+set -u
+
+repo_paths="${DAY_END_REPOS:-}"
+task_paths="${DAY_END_TASK_DIRS:-}"
+task_pattern="${DAY_END_TASK_PATTERN:-(^|[[:space:]])[-*] \[ \]}"
+task_limit="${DAY_END_TASK_LIMIT:-50}"
+exit_code=0
+
+usage() {
+  cat <<EOF
+Usage: day-end-check
+
+Checks only the directories configured by environment variables:
+  DAY_END_REPOS       Colon-separated git repository paths
+  DAY_END_TASK_DIRS   Colon-separated paths to scan for incomplete tasks
+
+Optional:
+  DAY_END_TASK_PATTERN  grep/rg extended regex for tasks
+  DAY_END_TASK_LIMIT    Maximum task lines to print
+EOF
+}
+
+expand_path() {
+  path="$1"
+  case "$path" in
+    "~") printf "%s\n" "$HOME" ;;
+    "~/"*) printf "%s/%s\n" "$HOME" "${path#~/}" ;;
+    *) printf "%s\n" "$path" ;;
+  esac
+}
+
+print_config_hint() {
+  cat <<EOF
+No directories configured.
+
+Add settings to ~/.zshrc.local, for example:
+  export DAY_END_REPOS="\$HOME/dotfiles:\$HOME/Documents/projects/example"
+  export DAY_END_TASK_DIRS="\$HOME/Documents/notes:\$HOME/Documents/projects/example"
+EOF
+}
+
+check_repo() {
+  repo="$1"
+
+  if [ ! -d "$repo" ]; then
+    printf "  ! %s: directory not found\n" "$repo"
+    exit_code=1
+    return
+  fi
+
+  if ! git -C "$repo" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    printf "  ! %s: not a git repository\n" "$repo"
+    exit_code=1
+    return
+  fi
+
+  short_status=$(git -C "$repo" status --short)
+  upstream=$(git -C "$repo" rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || true)
+  ahead_count=0
+
+  if [ -n "$upstream" ]; then
+    ahead_count=$(git -C "$repo" rev-list --count @{u}..HEAD 2>/dev/null || printf "0")
+  fi
+
+  if [ -z "$short_status" ] && [ "$ahead_count" = "0" ]; then
+    printf "  ok %s\n" "$repo"
+    return
+  fi
+
+  exit_code=1
+  printf "  !! %s\n" "$repo"
+
+  if [ -n "$short_status" ]; then
+    printf "%s\n" "$short_status" | sed 's/^/     /'
+  fi
+
+  if [ -z "$upstream" ]; then
+    printf "     no upstream configured\n"
+  elif [ "$ahead_count" != "0" ]; then
+    printf "     %s commit(s) not pushed to %s\n" "$ahead_count" "$upstream"
+  fi
+}
+
+scan_tasks_with_rg() {
+  dir="$1"
+  rg --line-number --no-heading --glob '*.md' --glob '*.txt' --glob '*.taskpaper' \
+    "$task_pattern" "$dir" 2>/dev/null
+}
+
+scan_tasks_with_grep() {
+  dir="$1"
+  find "$dir" \
+    \( -name .git -o -name node_modules -o -name .next -o -name dist -o -name build -o -name coverage \) -prune -o \
+    \( -name '*.md' -o -name '*.txt' -o -name '*.taskpaper' \) -type f -print |
+    while IFS= read -r file; do
+      grep -nE "$task_pattern" "$file" 2>/dev/null |
+        sed "s#^#$file:#"
+    done
+}
+
+check_tasks() {
+  dir="$1"
+
+  if [ ! -d "$dir" ]; then
+    printf "  ! %s: directory not found\n" "$dir"
+    exit_code=1
+    return
+  fi
+
+  if command -v rg >/dev/null 2>&1; then
+    matches=$(scan_tasks_with_rg "$dir" | head -n "$task_limit")
+    total=$(scan_tasks_with_rg "$dir" | wc -l | tr -d ' ')
+  else
+    matches=$(scan_tasks_with_grep "$dir" | head -n "$task_limit")
+    total=$(scan_tasks_with_grep "$dir" | wc -l | tr -d ' ')
+  fi
+
+  if [ "$total" = "0" ]; then
+    printf "  ok %s\n" "$dir"
+    return
+  fi
+
+  exit_code=1
+  printf "  !! %s: %s incomplete task(s)\n" "$dir" "$total"
+  printf "%s\n" "$matches" | sed 's/^/     /'
+
+  if [ "$total" -gt "$task_limit" ] 2>/dev/null; then
+    remaining=$((total - task_limit))
+    printf "     ... and %s more\n" "$remaining"
+  fi
+}
+
+if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
+  usage
+  exit 0
+fi
+
+if [ -z "$repo_paths" ] && [ -z "$task_paths" ]; then
+  print_config_hint
+  exit 2
+fi
+
+if [ -n "$repo_paths" ]; then
+  printf "Git repositories\n"
+  old_ifs="$IFS"
+  IFS=":"
+  for path in $repo_paths; do
+    [ -n "$path" ] || continue
+    check_repo "$(expand_path "$path")"
+  done
+  IFS="$old_ifs"
+fi
+
+if [ -n "$task_paths" ]; then
+  printf "\nIncomplete tasks\n"
+  old_ifs="$IFS"
+  IFS=":"
+  for path in $task_paths; do
+    [ -n "$path" ] || continue
+    check_tasks "$(expand_path "$path")"
+  done
+  IFS="$old_ifs"
+fi
+
+exit "$exit_code"

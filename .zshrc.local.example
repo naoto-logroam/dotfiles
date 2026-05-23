@@ -1,0 +1,17 @@
+# Copy this file to ~/.zshrc.local and fill in values that should not be
+# committed to git.
+
+# Google OAuth client for gcalcli / gtasks.
+# Create an OAuth client in Google Cloud Console with the Google Calendar API
+# and Google Tasks API enabled.
+export GCALCLI_CLIENT_ID=""
+export GCALCLI_CLIENT_SECRET=""
+
+# gtasks uses the same OAuth client by default.
+export GTASKS_CLIENT_ID="$GCALCLI_CLIENT_ID"
+export GTASKS_CLIENT_SECRET="$GCALCLI_CLIENT_SECRET"
+
+# Directories checked by day-end-check.
+# Use colon-separated paths. Only these directories are inspected.
+export DAY_END_REPOS="$HOME/dotfiles"
+export DAY_END_TASK_DIRS="$HOME/Documents/notes:$HOME/Documents/projects"
