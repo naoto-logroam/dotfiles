@@ -1,0 +1,8 @@
+# title	command
+show path entries	printf '%s\n' "$PATH" | tr ':' '\n'
+show listening ports	ss -ltnp
+show disk usage	df -h
+directory sizes	du -h --max-depth=1 | sort -h
+tar extract	tar xvf <file>
+tar create	tar cvf <archive.tar> <path>
+chmod executable	chmod +x <file>

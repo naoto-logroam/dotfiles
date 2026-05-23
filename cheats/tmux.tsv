@@ -1,0 +1,13 @@
+# title	command
+reload config	tmux source-file ~/.tmux.conf
+list sessions	tmux ls
+attach session	tmux attach -t <session>
+new session	tmux new -s <session>
+rename session	tmux rename-session -t <old> <new>
+new window	tmux new-window -c '#{pane_current_path}'
+move current pane to window 2	tmux move-pane -t :2
+move current pane horizontally to window 2	tmux move-pane -h -t :2
+bring pane 1 from window 2	tmux join-pane -s :2.1
+equalize panes	tmux select-layout -E
+show pane numbers	prefix q
+command prompt	prefix :

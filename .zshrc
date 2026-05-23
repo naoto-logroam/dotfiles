@@ -8,6 +8,9 @@ if [[ -d "$HOME/.bin" ]]; then
   export PATH="$HOME/.bin:$PATH"
 fi
 
+export PATH="$HOME/dotfiles/bin:$PATH"
+export CMD_CHEATS_DIR="$HOME/dotfiles/cheats"
+
 # Ctrl-q is the tmux prefix; disable terminal flow control so it reaches tmux.
 stty -ixon 2>/dev/null
 

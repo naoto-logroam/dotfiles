@@ -51,3 +51,9 @@ build/
 coverage/
 .turbo/
 .next/
+
+# Local app/tool state
+.wezterm
+.wezterm.lua
+.codex
+.agents/

@@ -1,5 +1,11 @@
-local wezterm = require("wezterm")
+local wezterm = require 'wezterm'
 local config = wezterm.config_builder()
+
+-- WezTerm起動時は必ずWSLへ
+config.default_domain = 'WSL:AlmaLinuxWork'
+
+-- WSL側で起動するシェル（bashでOK。zshなら差し替え）
+config.default_prog = { 'bash', '-l' }
 
 ------------------------------------------------------------
 -- 基本設定
@@ -9,6 +15,11 @@ config.font_size = 12.0
 config.use_ime = true
 config.window_background_opacity = 0.50
 config.macos_window_background_blur = 20
+config.color_scheme = 'nord'
+config.font = wezterm.font_with_fallback {
+  "Cica",
+  "JetBrains Mono",
+}
 
 ------------------------------------------------------------
 -- タブ設定
@@ -19,20 +30,20 @@ config.show_new_tab_button_in_tab_bar = false
 
 -- タブバーの透過
 config.window_frame = {
-	inactive_titlebar_bg = "none",
-	active_titlebar_bg = "none",
+    inactive_titlebar_bg = "none",
+    active_titlebar_bg = "none",
 }
 
 -- タブバーを背景色に合わせる
 config.window_background_gradient = {
-	colors = { "#000000" },
+    colors = { "#000000" },
 }
 
 -- タブバーの色設定
 config.colors = {
-	tab_bar = {
-		inactive_tab_edge = "none",
-	},
+    tab_bar = {
+        inactive_tab_edge = "none",
+    },
 }
 
 -- タブタイトルのカスタマイズ
@@ -40,27 +51,27 @@ config.colors = {
 --local SOLID_RIGHT_ARROW = wezterm.nerdfonts.ple_upper_left_triangle
 
 wezterm.on("format-tab-title", function(tab, tabs, panes, cfg, hover, max_width)
-	local background = "#5c6d74"
-	local foreground = "#FFFFFF"
-	local edge_background = "none"
+    local background = "#5c6d74"
+    local foreground = "#FFFFFF"
+    local edge_background = "none"
 
-	if tab.is_active then
-		background = "#ae8b2d"
-		foreground = "#FFFFFF"
-	end
+    if tab.is_active then
+        background = "#ae8b2d"
+        foreground = "#FFFFFF"
+    end
 
-	--local edge_foreground = background
-	local tab_title = tab.tab_title
-	if not tab_title or #tab_title == 0 then
-		tab_title = tab.active_pane.title
-	end
-	local title = "   " .. wezterm.truncate_right(tab_title, max_width - 1) .. "   "
+    --local edge_foreground = background
+    local tab_title = tab.tab_title
+    if not tab_title or #tab_title == 0 then
+        tab_title = tab.active_pane.title
+    end
+    local title = "   " .. wezterm.truncate_right(tab_title, max_width - 1) .. "   "
 
-	return {
-		{ Background = { Color = background } },
-		{ Foreground = { Color = foreground } },
-		{ Text = title },
-	}
+    return {
+        { Background = { Color = background } },
+        { Foreground = { Color = foreground } },
+        { Text = title },
+    }
 end)
 
 ------------------------------------------------------------
@@ -70,57 +81,79 @@ config.disable_default_key_bindings = true
 config.leader = { key = ",", mods = "CTRL", timeout_milliseconds = 2000 }
 
 config.keys = {
-	-- 基本操作
-	{ key = "c", mods = "LEADER", action = wezterm.action.SpawnTab("CurrentPaneDomain") },
-	{ key = "x", mods = "LEADER", action = wezterm.action.CloseCurrentPane({ confirm = true }) },
+    -- 基本操作
+    -- { key = "c", mods = "LEADER", action = wezterm.action.SpawnTab("CurrentPaneDomain") },
+{
+    key = "c",
+    mods = "LEADER",
+    action = wezterm.action.InputSelector({
+        title = "Select WSL",
+        choices = {
+            { label = "AlmaLinuxWork", id = "WSL:AlmaLinuxWork" },
+            { label = "AlmaLinuxRoam", id = "WSL:AlmaLinuxRoam" },
+        },
+        action = wezterm.action_callback(function(window, pane, id, label)
+            if not id then
+                return
+            end
 
-	-- ペイン分割
-	{ key = "\\", mods = "LEADER", action = wezterm.action.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
-	{ key = "-", mods = "LEADER", action = wezterm.action.SplitVertical({ domain = "CurrentPaneDomain" }) },
+            window:perform_action(
+                wezterm.action.SpawnTab({ DomainName = id }),
+                pane
+            )
+        end),
+    }),
+},
+    { key = "x", mods = "LEADER", action = wezterm.action.CloseCurrentPane({ confirm = true }) },
 
-	-- タブ切り替え
-	{ key = "h", mods = "LEADER", action = wezterm.action.ActivateTabRelative(-1) },
-	{ key = "l", mods = "LEADER", action = wezterm.action.ActivateTabRelative(1) },
+    -- ペイン分割
+    { key = "\\", mods = "LEADER", action = wezterm.action.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
+    { key = "-", mods = "LEADER", action = wezterm.action.SplitVertical({ domain = "CurrentPaneDomain" }) },
 
-	-- ペインリサイズ
-	{ key = "H", mods = "LEADER", action = wezterm.action.AdjustPaneSize({ "Left", 3 }) },
-	{ key = "J", mods = "LEADER", action = wezterm.action.AdjustPaneSize({ "Down", 3 }) },
-	{ key = "K", mods = "LEADER", action = wezterm.action.AdjustPaneSize({ "Up", 3 }) },
-	{ key = "L", mods = "LEADER", action = wezterm.action.AdjustPaneSize({ "Right", 3 }) },
+    -- タブ切り替え
+    { key = "h", mods = "LEADER", action = wezterm.action.ActivateTabRelative(-1) },
+    { key = "l", mods = "LEADER", action = wezterm.action.ActivateTabRelative(1) },
 
-	-- ズーム
-	{ key = "z", mods = "LEADER", action = wezterm.action.TogglePaneZoomState },
+    -- ペインリサイズ
+    { key = "H", mods = "LEADER", action = wezterm.action.AdjustPaneSize({ "Left", 3 }) },
+    { key = "J", mods = "LEADER", action = wezterm.action.AdjustPaneSize({ "Down", 3 }) },
+    { key = "K", mods = "LEADER", action = wezterm.action.AdjustPaneSize({ "Up", 3 }) },
+    { key = "L", mods = "LEADER", action = wezterm.action.AdjustPaneSize({ "Right", 3 }) },
 
-	-- ペインサイクル移動
-	{ key = "o", mods = "LEADER", action = wezterm.action.ActivatePaneDirection("Next") },
-	{ key = "i", mods = "LEADER", action = wezterm.action.ActivatePaneDirection("Prev") },
+    -- ズーム
+    { key = "z", mods = "LEADER", action = wezterm.action.TogglePaneZoomState },
 
-	-- ペイン選択UI
-	{ key = "s", mods = "LEADER", action = wezterm.action.PaneSelect },
+    -- ペインサイクル移動
+    { key = "o", mods = "LEADER", action = wezterm.action.ActivatePaneDirection("Next") },
+    { key = "i", mods = "LEADER", action = wezterm.action.ActivatePaneDirection("Prev") },
 
-	-- コピー&ペースト
-	{ key = "v", mods = "CTRL|SHIFT", action = wezterm.action.PasteFrom("Clipboard") },
-	{ key = "c", mods = "CTRL|SHIFT", action = wezterm.action.CopyTo("Clipboard") },
+    -- ペイン選択UI
+    { key = "s", mods = "LEADER", action = wezterm.action.PaneSelect },
 
-	-- コピーモード (tmux風)
-	{ key = "[", mods = "LEADER", action = wezterm.action.ActivateCopyMode },
+    -- コピー&ペースト
+    { key = "v", mods = "CTRL|SHIFT", action = wezterm.action.PasteFrom("Clipboard") },
+    { key = "c", mods = "CTRL|SHIFT", action = wezterm.action.CopyTo("Clipboard") },
 
-	-- その他
-	{ key = "Enter", mods = "SHIFT", action = wezterm.action.SendString("\x1b\r") },
+    -- コピーモード (tmux風)
+    { key = "[", mods = "LEADER", action = wezterm.action.ActivateCopyMode },
 
-	-- タブ名変更
-	{
-		key = ",",
-		mods = "LEADER",
-		action = wezterm.action.PromptInputLine({
-			description = "Tab name:",
-			action = wezterm.action_callback(function(window, panes, line)
-				if line then
-					window:active_tab():set_title(line)
-				end
-			end),
-		}),
-	},
+    -- その他
+    { key = "Enter", mods = "SHIFT", action = wezterm.action.SendString("\x1b\r") },
+
+    -- タブ名変更
+    {
+        key = ",",
+        mods = "LEADER",
+        action = wezterm.action.PromptInputLine({
+            description = "Tab name:",
+            action = wezterm.action_callback(function(window, panes, line)
+                if line then
+                    window:active_tab():set_title(line)
+                end
+            end),
+        }),
+    },
 }
+config.canonicalize_pasted_newlines = "None"
 
 return config

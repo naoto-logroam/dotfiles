@@ -1,0 +1,8 @@
+# title	command
+search text	rg <pattern>
+search text in file type	rg <pattern> -g '*.<ext>'
+search filenames	fd <pattern>
+search hidden files	fd --hidden <pattern>
+list files	rg --files
+list files by extension	rg --files -g '*.<ext>'
+find large files	fd --type f --exec du -h {} | sort -h

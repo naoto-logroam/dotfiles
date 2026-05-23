@@ -1,58 +1,43 @@
 # dotfiles
 
-macOS用の個人設定ファイル集
+個人用の設定ファイル集です。端末固有の設定、秘密情報、Codex 系ファイルは git 管理しません。
 
 ## 含まれるもの
 
-- `.zshrc` - zshの設定
-- `.tmux.conf` / `.tmux/conf.d/` - tmux設定
-- `.vimrc` - Vimの設定
-- `.config/nvim/` - Neovim設定（LazyVim）
-- `.config/wezterm/wezterm.lua` - WezTermターミナルの設定
-- `.config/karabiner/karabiner.json` - Karabiner-Elementsの設定
-- `.config/starship.toml` - Starshipプロンプトの設定
-- `Brewfile*` - Homebrewパッケージリスト（共通・用途別）
-- `install.sh` - セットアップスクリプト
+- `.zshrc` - zsh の共通設定
+- `.tmux.conf` / `tmux/` - tmux 設定
+- `.config/wezterm/wezterm.lua` - WezTerm 設定
+- `.config/starship.toml` - Starship プロンプト設定
+- `bin/cmds` / `cheats/` - よく使うコマンドの検索用メモ
 
-## インストール
+## セットアップ
 
 ```bash
-git clone https://github.com/your-username/dotfiles.git ~/dotfiles
-cd ~/dotfiles
-./install.sh
+git clone git@github.com:naoto-logroam/dotfiles.git ~/dotfiles
+ln -sfn ~/dotfiles/.zshrc ~/.zshrc
+ln -sfn ~/dotfiles/tmux/tmux.conf ~/.tmux.conf
+ln -sfn ~/dotfiles/.config/starship.toml ~/.config/starship.toml
 ```
 
-用途別のパッケージも入れる場合:
+WezTerm は利用環境に合わせて次のどちらかで配置します。
 
 ```bash
-./install.sh --with gui,k8s,node,vscode
+ln -sfn ~/dotfiles/.config/wezterm/wezterm.lua ~/.config/wezterm/wezterm.lua
 ```
 
-Homebrew は触らず、シンボリックリンクだけ張り直す場合:
+Windows 側の WezTerm から読む場合は、Windows の設定ファイル配置先に
+`.config/wezterm/wezterm.lua` の内容を反映します。
 
-```bash
-./install.sh --no-brew
-```
+## zsh
 
-## 設定内容
+- `~/dotfiles/bin` を `PATH` に追加
+- `CMD_CHEATS_DIR` を `~/dotfiles/cheats` に設定
+- `starship` が入っている場合だけプロンプトを初期化
 
-### Vim / Neovim
+## tmux
 
-- タブ幅: 4スペース
-- Neovim: LazyVimベース
-
-### zsh (.zshrc)
-
-- Homebrew環境の初期化
-- Tab補完（大文字小文字を区別しない）
-- zsh-autosuggestions による履歴候補表示
-- Starship プロンプト
-- エイリアス: `vi`/`vim` → neovim, `ll`, `la`
-
-### tmux
-
-- 設定は `.tmux.conf` をエントリポイントにして `.tmux/conf.d/*.conf` に分割
-- Prefix: `Ctrl+q`
+- 設定は `tmux/tmux.conf` をエントリポイントにして `tmux/conf.d/*.conf` に分割
+- Prefix: `Ctrl-q`
 - マウス操作を有効化
 - vi 風コピーモード
 - ペイン上部にペイン番号・コマンド・現在パスを表示
@@ -86,72 +71,29 @@ setup-google-oauth
 rm -f ~/.cache/tmux/google-status
 ```
 
-#### キーバインド
+## WezTerm
 
-| キー | 機能 |
-|------|------|
-| `Ctrl+q` `r` | 設定再読み込み |
-| `Ctrl+q` `c` | 新規ウィンドウ |
-| `Ctrl+q` `\` | 水平分割 |
-| `Ctrl+q` `-` | 垂直分割 |
-| `Ctrl+q` `h/l` | 前後のウィンドウへ移動 |
-| `Ctrl+q` `Left/Right` | ウィンドウの並び替え |
-| `Ctrl+q` `z` | ペインズーム |
+- WSL の `AlmaLinuxWork` をデフォルトドメインに設定
+- フォントは Cica / JetBrains Mono
+- リーダーキー: `Ctrl+,`
+- タブ作成時に WSL ドメインを選択可能
 
-### WezTerm
+## cmds
 
-- 半透明背景（85%）+ ぼかし効果
-- タブバーのカスタマイズ
-- tmux風キーバインド（リーダーキー: `Ctrl+q`）
-
-#### キーバインド
-
-| キー | 機能 |
-|------|------|
-| `Ctrl+q` `c` | 新規タブ |
-| `Ctrl+q` `x` | ペイン閉じる |
-| `Ctrl+q` `\` | 水平分割 |
-| `Ctrl+q` `-` | 垂直分割 |
-| `Ctrl+q` `h/j/k/l` | ペイン/タブ移動 |
-| `Ctrl+q` `H/J/K/L` | ペインリサイズ |
-| `Ctrl+q` `z` | ペインズーム |
-| `Ctrl+q` `[` | コピーモード |
-| `Ctrl+q` `,` | タブ名変更 |
-
-### Starship
-
-カスタムプロンプト設定:
-
-- 2行表示（パス + git情報 / 入力行）
-- 右側にコマンド実行時間・ユーザー名・時刻を表示
-- ディレクトリアイコン（Documents, Downloads等）
-- Git ブランチ・ステータス表示
-- AWS/GCloud表示は無効化
-
-### Karabiner-Elements
-
-キーリマップ設定:
-
-- Caps Lock → Right Command（グローバル）
-- Right Command + `h/j/k/l` → 矢印キー（グローバル）
-- WezTerm内:
-  - Caps Lock → Left Control
-  - Ctrl + `h/j/k/l` → 矢印キー
-  - Ctrl + Space → Cmd + Space（IME切り替え）
-
-### Brewfile
-
-共通パッケージは `Brewfile` にまとめています。用途別の追加分は必要なものだけ個別に実行します。
+`bin/cmds` は `cheats/*.tsv` を検索してコマンドを表示します。`fzf` があれば選択 UI を使い、なければ一覧表示します。
 
 ```bash
-brew bundle --file Brewfile
-brew bundle --file Brewfile.gui
-brew bundle --file Brewfile.k8s
-brew bundle --file Brewfile.node
-brew bundle --file Brewfile.vscode
+cmds git
+cmds tmux
 ```
 
-PC固有の追加分は `Brewfile.local` に書くと `install.sh` 実行時に自動で読み込まれます。`Brewfile.local` は git 管理外です。
+## 管理しないもの
+
+- `.codex`
+- `.agents/`
+- `.wezterm`
+- `.wezterm.lua`
+- 秘密情報や端末固有設定
 
 ## 運用メモ
 
