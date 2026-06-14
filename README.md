@@ -73,10 +73,12 @@ rm -f ~/.cache/tmux/google-status
 
 ## WezTerm
 
-- WSL の `AlmaLinuxWork` をデフォルトドメインに設定
+- Windows では WSL の `AlmaLinuxWork` をデフォルトドメインに設定
+- macOS ではローカルのログインシェルを起動
 - フォントは Cica / JetBrains Mono
 - リーダーキー: `Ctrl+,`
-- タブ作成時に WSL ドメインを選択可能
+- Windows ではタブ作成時に WSL ドメインを選択可能
+- macOS では同じキーで現在のドメインに新規タブを作成
 
 ## cmds
 

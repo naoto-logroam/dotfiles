@@ -1,11 +1,17 @@
 local wezterm = require 'wezterm'
 local config = wezterm.config_builder()
 
--- WezTerm起動時は必ずWSLへ
-config.default_domain = 'WSL:AlmaLinuxWork'
+local target_triple = wezterm.target_triple or ""
+local is_windows = target_triple:find("windows") ~= nil
+local is_macos = target_triple:find("darwin") ~= nil
 
--- WSL側で起動するシェル（bashでOK。zshなら差し替え）
-config.default_prog = { 'bash', '-l' }
+if is_windows then
+    -- Windows側のWezTermではWSLをデフォルトにする
+    config.default_domain = 'WSL:AlmaLinuxWork'
+    config.default_prog = { 'bash', '-l' }
+elseif is_macos then
+    config.default_prog = { os.getenv("SHELL") or "/bin/zsh", "-l" }
+end
 
 ------------------------------------------------------------
 -- 基本設定
@@ -14,12 +20,15 @@ config.automatically_reload_config = true
 config.font_size = 12.0
 config.use_ime = true
 config.window_background_opacity = 0.50
-config.macos_window_background_blur = 20
 config.color_scheme = 'nord'
 config.font = wezterm.font_with_fallback {
   "Cica",
   "JetBrains Mono",
 }
+
+if is_macos then
+    config.macos_window_background_blur = 20
+end
 
 ------------------------------------------------------------
 -- タブ設定
@@ -80,30 +89,7 @@ end)
 config.disable_default_key_bindings = true
 config.leader = { key = ",", mods = "CTRL", timeout_milliseconds = 2000 }
 
-config.keys = {
-    -- 基本操作
-    -- { key = "c", mods = "LEADER", action = wezterm.action.SpawnTab("CurrentPaneDomain") },
-{
-    key = "c",
-    mods = "LEADER",
-    action = wezterm.action.InputSelector({
-        title = "Select WSL",
-        choices = {
-            { label = "AlmaLinuxWork", id = "WSL:AlmaLinuxWork" },
-            { label = "AlmaLinuxRoam", id = "WSL:AlmaLinuxRoam" },
-        },
-        action = wezterm.action_callback(function(window, pane, id, label)
-            if not id then
-                return
-            end
-
-            window:perform_action(
-                wezterm.action.SpawnTab({ DomainName = id }),
-                pane
-            )
-        end),
-    }),
-},
+local keys = {
     { key = "x", mods = "LEADER", action = wezterm.action.CloseCurrentPane({ confirm = true }) },
 
     -- ペイン分割
@@ -154,6 +140,38 @@ config.keys = {
         }),
     },
 }
+
+if is_windows then
+    table.insert(keys, 1, {
+        key = "c",
+        mods = "LEADER",
+        action = wezterm.action.InputSelector({
+            title = "Select WSL",
+            choices = {
+                { label = "AlmaLinuxWork", id = "WSL:AlmaLinuxWork" },
+                { label = "AlmaLinuxRoam", id = "WSL:AlmaLinuxRoam" },
+            },
+            action = wezterm.action_callback(function(window, pane, id, label)
+                if not id then
+                    return
+                end
+
+                window:perform_action(
+                    wezterm.action.SpawnTab({ DomainName = id }),
+                    pane
+                )
+            end),
+        }),
+    })
+else
+    table.insert(keys, 1, {
+        key = "c",
+        mods = "LEADER",
+        action = wezterm.action.SpawnTab("CurrentPaneDomain"),
+    })
+end
+
+config.keys = keys
 config.canonicalize_pasted_newlines = "None"
 
 return config
